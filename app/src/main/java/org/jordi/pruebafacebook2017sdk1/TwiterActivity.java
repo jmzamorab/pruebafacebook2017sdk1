@@ -79,6 +79,7 @@ import static android.R.attr.data;
                 bitmapOriginal.getHeight(), false));
         txtShare = (TextView) findViewById(R.id.edtTweet);
         btnTwiter = (TwitterLoginButton) findViewById(R.id.twitter_login_button);
+
         btnTwiter.setCallback(new Callback<TwitterSession>() {
             @Override
             public void success(Result<TwitterSession> result) {

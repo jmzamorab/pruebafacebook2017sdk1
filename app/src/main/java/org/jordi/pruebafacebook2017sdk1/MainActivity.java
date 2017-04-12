@@ -1,33 +1,5 @@
 package org.jordi.pruebafacebook2017sdk1;
 
-/*import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.widget.TextView;
-
-/*public class MainActivity extends AppCompatActivity {
-
-    // Used to load the 'native-lib' library on application startup.
-    static {
-        System.loadLibrary("native-lib");
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        // Example of a call to a native method
-        TextView tv = (TextView) findViewById(R.id.sample_text);
-        tv.setText(stringFromJNI());
-    }
-
-    /**
-     * A native method that is implemented by the 'native-lib' native library,
-     * which is packaged with this application.
-
-    public native String stringFromJNI();
-}
-*/
 
 import android.Manifest;
 import android.content.Intent;
@@ -63,6 +35,8 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static android.graphics.BitmapFactory.decodeResource;
+
 public class MainActivity extends AppCompatActivity {
 
     // Note: Your consumer key and secret should be obfuscated in your source code before shipping.
@@ -77,9 +51,6 @@ public class MainActivity extends AppCompatActivity {
     private ImageView ivDisplay = null;
     private MenuItem mnuItem;
     private Menu mnu;
-    // Propuesta Doc Oficial
-    private String mCurrentPhotoPath;
-    // doc Internet
     private static int TAKE_PICTURE = 1;
     private static int SELECT_PICTURE = 2;
     private Button shareFacebookBtn;
@@ -117,23 +88,33 @@ public class MainActivity extends AppCompatActivity {
         shareFacebookBtn.setEnabled(true);
         shareTwitterBtn.setEnabled(true);
         setColor(true);
-       /* shareFacebookBtn.setOnClickListener(new View.OnClickListener() {
+        shareFacebookBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(MainActivity.this, FacebookActivity.class);
+                /*Intent i = new Intent(MainActivity.this, FacebookActivity.class);
                 i.putExtra("photo",bitmapOriginal);
+                startActivity(i);*/
+                photo=((BitmapDrawable)ivDisplay.getDrawable()).getBitmap();
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                photo.compress(Bitmap.CompressFormat.PNG, 90, stream);
+                byte[] byteArray = stream.toByteArray();
+                Intent i = new Intent(MainActivity.this, FacebookActivity.class);
+                i.putExtra("photo",byteArray);
                 startActivity(i);
             }
-        });*/
+        });
 
         shareTwitterBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ivDisplay.setDrawingCacheEnabled(true);
-                ivDisplay.buildDrawingCache();
-                photo = ivDisplay.getDrawingCache();
+                //Bitmap bitmap = ((BitmapDrawable)ivDisplay.getDrawable()).getBitmap();
+                //escalaImagen(bitmap);
+                //ivDisplay.setDrawingCacheEnabled(true);
+                //ivDisplay.buildDrawingCache();
+                //photo = ivDisplay.getDrawingCache();
+                photo=((BitmapDrawable)ivDisplay.getDrawable()).getBitmap();
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                photo.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                photo.compress(Bitmap.CompressFormat.PNG, 90, stream);
                 byte[] byteArray = stream.toByteArray();
                 Intent i = new Intent(MainActivity.this, TwiterActivity.class);
                 i.putExtra("photo",byteArray);
@@ -156,7 +137,10 @@ public class MainActivity extends AppCompatActivity {
             // Asegurar que la imagen tiene 24 bits de color
             options.inPreferredConfig = Bitmap.Config.ARGB_8888;
             bitmapOriginal = BitmapFactory.decodeResource(this.getResources(), R.drawable.sampleimage, options);
-            if (bitmapOriginal != null) ivDisplay.setImageBitmap(bitmapOriginal);
+            if (bitmapOriginal != null){
+                ivDisplay.setImageBitmap(bitmapOriginal);
+                //escalaImagen(bitmapOriginal);
+            }
         }
         ivDisplay.setImageBitmap(bitmapOriginal);
     }
@@ -257,8 +241,8 @@ public class MainActivity extends AppCompatActivity {
 
     // Escalamos la fotografía, y la mostramos
     private void escalaImagen(Bitmap bitmap) {
-        int targetW = ivDisplay.getWidth();
-        int targetH = ivDisplay.getHeight();
+        int targetW = 500;//ivDisplay.getWidth();
+        int targetH = 500;//ivDisplay.getHeight();
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
         bitmapOriginal = Bitmap.createScaledBitmap(bitmap, targetW, targetH, true);
         ivDisplay.setImageBitmap(bitmapOriginal);

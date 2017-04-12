@@ -20,7 +20,7 @@ android {
     buildToolsVersion "25.0.2"
     defaultConfig {
         applicationId "org.jordi.pruebafacebook2017sdk1"
-        minSdkVersion 14
+        minSdkVersion 15
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
@@ -52,10 +52,11 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support:appcompat-v7:25.0.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     testCompile 'junit:junit:4.12'
     compile 'com.squareup.retrofit:retrofit:1.9.0'
+    compile 'com.facebook.android:facebook-android-sdk:4.+'
     compile('com.twitter.sdk.android:twitter:2.3.2@aar') {
         transitive = true;
     }
