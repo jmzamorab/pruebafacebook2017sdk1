@@ -51,6 +51,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.twitter.sdk.android.Twitter;
+import com.twitter.sdk.android.core.TwitterAuthConfig;
+import io.fabric.sdk.android.Fabric;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -60,6 +63,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
+
+    // Note: Your consumer key and secret should be obfuscated in your source code before shipping.
+    private static final String TWITTER_KEY = "1upGedXidBGuacfhfvUOMRldz";
+    private static final String TWITTER_SECRET = "9U6Ze7AZM6oNYfDxGcs1Ckga83MFuySiPQ5TJ41kuiGrZf1vKy";
+
     private String tag = "MainActivity";
     private Bitmap bitmapOriginal = null;
     private Bitmap bitmapGrises = null;
@@ -75,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
     private static int SELECT_PICTURE = 2;
     private Button shareFacebookBtn;
     private Button shareTwitterBtn;
+    private Bitmap photo;
 
 
     static {
@@ -97,6 +106,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        TwitterAuthConfig authConfig = new TwitterAuthConfig(TWITTER_KEY, TWITTER_SECRET);
+        Fabric.with(this, new Twitter(authConfig));
         setContentView(R.layout.activity_main);
         Log.i(tag, "Imagen antes de modificar");
         ivDisplay = (ImageView) findViewById(R.id.ivDisplay);
@@ -112,16 +123,17 @@ public class MainActivity extends AppCompatActivity {
                 i.putExtra("photo",bitmapOriginal);
                 startActivity(i);
             }
-        });
+        });*/
 
         shareTwitterBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(MainActivity.this, FacebookActivity.class);
-                i.putExtra("photo",bitmapOriginal);
+                Intent i = new Intent(MainActivity.this, TwiterActivity.class);
+                //i.putExtra("photo",bitmapOriginal);
+                i.putExtra("photo",photo);
                 startActivity(i);
             }
-        });*/
+        });
 
         //setColor(true);
     }
@@ -260,7 +272,16 @@ public class MainActivity extends AppCompatActivity {
                 //Drawable drawable = ivDisplay.getDrawable();
                 //BitmapDrawable bitmapDrawable = ((BitmapDrawable) drawable);
                 //photo = bitmapDrawable .getBitmap();
-                escalaImagen((Bitmap) extras.get("data"));
+            bitmapOriginal = (Bitmap) extras.get("data");
+            ivDisplay.setImageBitmap(bitmapOriginal);
+            //bitmapFilter = bitmapOriginal;
+
+
+
+            Drawable drawable = ivDisplay.getDrawable();
+            BitmapDrawable bitmapDrawable = ((BitmapDrawable) drawable);
+            photo = bitmapDrawable .getBitmap();
+                //escalaImagen((Bitmap) extras.get("data"));
            // }
         } else if (requestCode == SELECT_PICTURE) {
             Uri selectedImage = data.getData();
@@ -290,6 +311,9 @@ public class MainActivity extends AppCompatActivity {
 //        Bitmap resizedBitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeFile(mCurrentPhotoPath), targetW, targetH, true);
  //       bitmapOriginal = resizedBitmap;
         ivDisplay.setImageBitmap(bitmapOriginal);
+        Drawable drawable = ivDisplay.getDrawable();
+        BitmapDrawable bitmapDrawable = ((BitmapDrawable) drawable);
+        photo = bitmapDrawable .getBitmap();
     }
 }
 
