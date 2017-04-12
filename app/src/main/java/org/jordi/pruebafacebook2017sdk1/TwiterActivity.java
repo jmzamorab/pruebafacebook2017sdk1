@@ -51,10 +51,7 @@ import com.twitter.sdk.android.Twitter;
         import retrofit2.Call;
 
         import static android.R.attr.bitmap;
-       // import static es.upv.master.pruebatwiter.R.drawable.carnival;
-
-
-//import static android.icu.text.RelativeDateTimeFormatter.Direction.THIS;
+import static android.R.attr.data;
 
  public class TwiterActivity extends AppCompatActivity {
     // Note: Your consumer key and secret should be obfuscated in your source code before shipping.
@@ -75,13 +72,13 @@ import com.twitter.sdk.android.Twitter;
         TwitterAuthConfig authConfig = new TwitterAuthConfig(TWITTER_KEY, TWITTER_SECRET);
         Fabric.with(this, new Twitter(authConfig));
         setContentView(R.layout.twiter_layout);
-        Bundle extras = getIntent().getExtras();
-        bitmapOriginal = (Bitmap) extras.get("photo");
+        byte[] prueba = getIntent().getExtras().getByteArray("photo");
+        bitmapOriginal = BitmapFactory.decodeByteArray(prueba, 0, prueba.length);
         ivDisplay = (ImageView) findViewById(R.id.imgView);
-        ivDisplay.setImageBitmap(bitmapOriginal);
+        ivDisplay.setImageBitmap(Bitmap.createScaledBitmap(bitmapOriginal, bitmapOriginal.getWidth(),
+                bitmapOriginal.getHeight(), false));
         txtShare = (TextView) findViewById(R.id.edtTweet);
         btnTwiter = (TwitterLoginButton) findViewById(R.id.twitter_login_button);
-        setColor(true);
         btnTwiter.setCallback(new Callback<TwitterSession>() {
             @Override
             public void success(Result<TwitterSession> result) {
@@ -97,33 +94,7 @@ import com.twitter.sdk.android.Twitter;
     }
 
 
-    private void setColor(Boolean imgOrigen)
-    {
-     /*   Log.i("VER IMG", "Resetear Imagen");
-        if (imgOrigen) {
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            // Asegurar que la imagen tiene 24 bits de color
-            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-            bitmapOriginal = BitmapFactory.decodeResource(this.getResources(), R.drawable.twitter_logo, options);
-            if (bitmapOriginal != null)
-                ivDisplay.setImageBitmap(bitmapOriginal);
-        }
-        ivDisplay.setImageBitmap(bitmapOriginal);*/
-    }
-
-    private void escalaImagen()
-    {
-    /*    int targetW = ivDisplay.getWidth();
-        int targetH = ivDisplay.getHeight();
-        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-        bmOptions.inPreferredConfig = Bitmap.Config.ARGB_8888;
-        bitmapOriginal = BitmapFactory.decodeResource(this.getResources(), carnival, bmOptions);
-        //BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
-        //Bitmap resizedBitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeFile(mCurrentPhotoPath), targetW, targetH, true);
-        //  bitmapOriginal = resizedBitmap;
-        ivDisplay.setImageBitmap(bitmapOriginal);*/
-    }
-
+    //Este yo creo que sobra ....
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -151,7 +122,6 @@ import com.twitter.sdk.android.Twitter;
        // Create an image file name
         //String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         //String imageFileName = "JPEG_" + timeStamp + "_";
-
         String imageFileName = "FicPruebaTwiter";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
@@ -165,31 +135,11 @@ import com.twitter.sdk.android.Twitter;
         return image;
     }
 
-
-    private void checkPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
-            getPhoto();
-        else
-            ActivityCompat.requestPermissions(TwiterActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        Log.d("** SUBIR IMAGEN ", "requestPermission Result");
-
-        if (permissions[0] == Manifest.permission.CAMERA && grantResults[0] == PackageManager.PERMISSION_DENIED) {
-            Toast.makeText(TwiterActivity.this, "Permiso denegado para acceder a la tarjeta SD", Toast.LENGTH_SHORT);
-        } else getPhoto();
-    }
-
     private File convertBitmapToFile() throws IOException {
         File f = createImageFile();
-     //   Bitmap bitmap = BitmapFactory.decodeResource(getResources(), bitmapOriginal);
-        //Bitmap bitmap = BitmapFactory.decodeFile()
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         bitmapOriginal.compress(Bitmap.CompressFormat.PNG, 0, bos);
         byte[] bitmapdata = bos.toByteArray();
-
         //write the bytes in file
         FileOutputStream fos = null;
         try {
@@ -205,27 +155,11 @@ import com.twitter.sdk.android.Twitter;
         return f;
     }
 
-    private void getPhoto()
-    {
-        try {
-            photo  = new File("///storage/209E-9627/DCIM/Camera/carnival.jpg");
-            Bitmap bitmap = BitmapFactory.decodeFile(photo.getPath());
-            ivDisplay.setImageBitmap(bitmap);
-            Log.d ("** SUBIR IMAGEN ", "enviarImagen_async(): can read: " + photo.canRead());
-            Log.d("** SUBIR IMAGEN ", "enviarImagen_async(): absolute path: " + photo.getAbsolutePath());
-            Log.d("** SUBIR IMAGEN ", "enviarImagen_async(): length: " + photo.length());
-            Log.d("** SUBIR IMAGEN ", "enviarImagen_async(): Exist: " + photo.exists());
-
-        } catch (Exception e) {
-            Log.d("miApp", "enviarImagen : excepcion: " + e.getMessage());
-            return;
-        }
-    }
 
     public void share_image(View quien) {
         //checkPermission();
         try {
-           photo =  convertBitmapToFile();
+           photo = convertBitmapToFile();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -246,7 +180,11 @@ import com.twitter.sdk.android.Twitter;
                 Log.d("** SUBIR IMAGEN ", "imagen publicada: " + mediaResult.response.toString());
                 Toast.makeText(THIS, "imagen publicada: " + mediaResult.response.toString(), Toast.LENGTH_LONG);
                 StatusesService statusesService = Twitter.getApiClient(myTwitterSession).getStatusesService();
-                Call<Tweet> call2 = statusesService.update("imagen subida OK",null,
+                String msg = txtShare.getText().toString();
+                 if (msg == null )
+                     msg = "imagen subida OK";
+
+                Call<Tweet> call2 = statusesService.update(msg,null,
                         false,
                         null,
                         null,
@@ -278,9 +216,6 @@ import com.twitter.sdk.android.Twitter;
             public void failure(TwitterException e) {
 // failure de call1
                 Toast.makeText(THIS, "No se pudo publicar el tweet: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                //Log.d(" ** SUBIR IMAGEN ", "Failure llamada 1 " + e.getMessage());
-                //TwitterApiException apiException = (TwitterApiException) e;
-                //Log.d(" ** SUBIR IMAGEN ", e.getErrorMessage());
                 Log.d("** SUBIR IMAGEN ", e.getMessage());
             }
         });

@@ -55,6 +55,7 @@ import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
 import io.fabric.sdk.android.Fabric;
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -128,14 +129,18 @@ public class MainActivity extends AppCompatActivity {
         shareTwitterBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ivDisplay.setDrawingCacheEnabled(true);
+                ivDisplay.buildDrawingCache();
+                photo = ivDisplay.getDrawingCache();
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                photo.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                byte[] byteArray = stream.toByteArray();
                 Intent i = new Intent(MainActivity.this, TwiterActivity.class);
-                //i.putExtra("photo",bitmapOriginal);
-                i.putExtra("photo",photo);
+                i.putExtra("photo",byteArray);
                 startActivity(i);
             }
         });
 
-        //setColor(true);
     }
 
     @Override
@@ -180,8 +185,6 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.marco_1:
                 Log.i(tag, "Creacion de Marco_1");
-                //item.getMenuInfo().
-                //mnuItem = menu.findItem(R.id.marco_2).setEnabled(true);
                 bitmapMarco_1 = Bitmap.createBitmap(bitmapOriginal.getWidth(), bitmapOriginal.getHeight(), Bitmap.Config.ARGB_8888);
                 creaMarco(bitmapOriginal, bitmapMarco_1);
                 ivDisplay.setImageBitmap(bitmapMarco_1);
@@ -227,62 +230,17 @@ public class MainActivity extends AppCompatActivity {
     {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         int code = TAKE_PICTURE;
-        //try {
-          //  File fic = createImageFile();
-           // Uri output = Uri.fromFile(fic);
-            //takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, output);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(takePictureIntent, code);}
-//        } else if (rbtnGallery.isChecked()){
-//            intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI);
-//            code = SELECT_PICTURE;
-//        }
-        //} catch (IOException e) {
-         //   Toast.makeText(getApplicationContext(), "No se ha podido capturar la fotografía de forma correcta " + e.getMessage(), Toast.LENGTH_LONG).show();
-        //}
     }
-
-    //Crea un fichero que su nombre para hacer único
- /*   private File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
-                imageFileName,  /* prefix
-                ".jpg",         /* suffix
-                storageDir      /* directory
-        );
-
-        // Save a file: path for use with ACTION_VIEW intents
-        mCurrentPhotoPath = image.getAbsolutePath();
-        return image;
-    }*/
 
 
     // Al tomar fotografía, comprobamos si resultado correcto
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == TAKE_PICTURE && resultCode == RESULT_OK) {
-          //  if (data == null) {
                 Bundle extras = data.getExtras();
-                //bitmapOriginal = (Bitmap) extras.get("data");
-                //ivDisplay.setImageBitmap(bitmapOriginal);
-                //bitmapFilter = bitmapOriginal;
-                //Drawable drawable = ivDisplay.getDrawable();
-                //BitmapDrawable bitmapDrawable = ((BitmapDrawable) drawable);
-                //photo = bitmapDrawable .getBitmap();
-            bitmapOriginal = (Bitmap) extras.get("data");
-            ivDisplay.setImageBitmap(bitmapOriginal);
-            //bitmapFilter = bitmapOriginal;
-
-
-
-            Drawable drawable = ivDisplay.getDrawable();
-            BitmapDrawable bitmapDrawable = ((BitmapDrawable) drawable);
-            photo = bitmapDrawable .getBitmap();
-                //escalaImagen((Bitmap) extras.get("data"));
-           // }
+                escalaImagen((Bitmap) extras.get("data"));
         } else if (requestCode == SELECT_PICTURE) {
             Uri selectedImage = data.getData();
             InputStream is;
@@ -290,14 +248,10 @@ public class MainActivity extends AppCompatActivity {
                 is = getContentResolver().openInputStream(selectedImage);
                 BufferedInputStream bis = new BufferedInputStream(is);
                 Bitmap bitmap = BitmapFactory.decodeStream(bis);
-                //       ImageView iv = (ImageView)findViewById(R.id.imgView);
-                //bitmapOriginal = bitmap;
                 escalaImagen(bitmap);
-                //setColor(false);
+
             } catch (FileNotFoundException e) {
             }
-            //Bundle extras = data.getExtras();
-            //escalaImagen((Bitmap) extras.get("data"));
         }
     }
 
@@ -306,14 +260,8 @@ public class MainActivity extends AppCompatActivity {
         int targetW = ivDisplay.getWidth();
         int targetH = ivDisplay.getHeight();
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-        BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
         bitmapOriginal = Bitmap.createScaledBitmap(bitmap, targetW, targetH, true);
-//        Bitmap resizedBitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeFile(mCurrentPhotoPath), targetW, targetH, true);
- //       bitmapOriginal = resizedBitmap;
         ivDisplay.setImageBitmap(bitmapOriginal);
-        Drawable drawable = ivDisplay.getDrawable();
-        BitmapDrawable bitmapDrawable = ((BitmapDrawable) drawable);
-        photo = bitmapDrawable .getBitmap();
     }
 }
 
